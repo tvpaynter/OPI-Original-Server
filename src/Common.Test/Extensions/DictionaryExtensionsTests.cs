@@ -17,7 +17,7 @@ namespace StatementIQ.Common.Test.Extensions
                 {"newkey", "newvalue"}
             };
 
-            var result = target.AsReadOnly();
+            var result = DictionaryExtensions.AsReadOnly(target);
 
             Assert.True(result.GetType() == typeof(ReadOnlyDictionary<string, string>));
             Assert.Equal(target.Count, result.Count);
@@ -45,7 +45,7 @@ namespace StatementIQ.Common.Test.Extensions
         {
             var target = default(Dictionary<string, string>);
 
-            Assert.Throws<ArgumentNullException>(() => target.AsReadOnly());
+            Assert.Throws<ArgumentNullException>(() => DictionaryExtensions.AsReadOnly(target));
         }
 
         [Fact]

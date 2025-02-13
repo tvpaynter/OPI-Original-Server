@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Autofac;
 using MandateThat;
 using StatementIQ.Common.Data.Models.Enums;
