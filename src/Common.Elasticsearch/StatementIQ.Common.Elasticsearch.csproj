@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+	    <AssemblyName>StatementIQ.Common.ElasticsSearch</AssemblyName>
+        <RootNamespace>StatementIQ.Common.ElasticSearch</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MandateThat" Version="1.0.13" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+      <PackageReference Include="NEST" Version="7.10.1" />
+      <PackageReference Include="NEST.JsonNetSerializer" Version="7.10.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common.Autofac\StatementIQ.Common.Autofac.csproj" />
+      <ProjectReference Include="..\Common.Data\StatementIQ.Common.Data.csproj" />
+    </ItemGroup>
+
+</Project>

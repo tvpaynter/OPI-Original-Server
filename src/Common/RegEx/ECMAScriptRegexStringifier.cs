@@ -1,0 +1,107 @@
+﻿namespace StatementIQ.RegEx
+{
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>   An ecma script RegEx stringifier. </summary>
+    /// <remarks>   StatementIQ, 5/14/2020. </remarks>
+    /// <seealso cref="T:StatementIQ.RegEx.RegexStringifier" />
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma warning disable S101 // Types should be named in PascalCase
+    public class ECMAScriptRegexStringifier : RegexStringifier
+#pragma warning restore S101 // Types should be named in PascalCase
+    {
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Gets the RegEx language. Will always be 'RegexLanguage.ECMAScript' </summary>
+        /// <value> The RegEx language. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override RegexLanguage RegexLanguage => RegexLanguage.ECMAScript;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether the named capturing group option is supported.
+        /// </summary>
+        /// <value> True if this  is named capturing group supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsNamedCapturingGroupSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether the inline group options are supported.
+        /// </summary>
+        /// <value> True if this  is inline group options supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsInlineGroupOptionsSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Gets a value indicating whether the atomic group option is supported. </summary>
+        /// <value> True if this  is atomic group supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsAtomicGroupSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether positive look-ahead assertions are supported.
+        /// </summary>
+        /// <value> True if this  is positive look-ahead assertion supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsPositiveLookaheadAssertionSupported => true;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether negative look-ahead assertion options are supported.
+        /// </summary>
+        /// <value> True if this  is negative look-ahead assertion supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsNegativeLookaheadAssertionSupported => true;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether positive look-behind assertion options are supported.
+        /// </summary>
+        /// <value> True if this  is positive look-behind assertion supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsPositiveLookbehindAssertionSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        ///     Gets a value indicating whether negative look-behind assertion options are supported.
+        /// </summary>
+        /// <value> True if this  is negative look-behind assertion supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsNegativeLookbehindAssertionSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Gets a value indicating whether unicode category options are supported. </summary>
+        /// <value> True if this  is unicode category supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsUnicodeCategorySupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Gets a value indicating whether conditional options are supported. </summary>
+        /// <value> True if this  is conditional supported, false if not. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public override bool IsConditionalSupported => false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Convert this  into a string representation. </summary>
+        /// <remarks>   StatementIQ, 5/14/2020. </remarks>
+        /// <param name="node"> The node. </param>
+        /// <returns>   A string that represents this. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        public override string ToString(RegexNode node)
+        {
+            return $"/{base.ToString(node)}/";
+        }
+    }
+}

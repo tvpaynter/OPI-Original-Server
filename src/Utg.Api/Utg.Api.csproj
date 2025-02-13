@@ -42,15 +42,14 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
-        <PackageReference Include="StatementIQ.Common" Version="1.0.735" />
-        <PackageReference Include="StatementIQ.Common.Data" Version="1.0.547" />
         <PackageReference Include="StatementIQ.Common.Web" Version="1.0.600" />
         <PackageReference Include="StatementIQ.Common.Web.Logging" Version="1.0.0.30" />
-        <PackageReference Include="StatementIQ.Data.Common.Migrations" Version="1.0.485" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.Web.Logging\StatementIQ.Common.Web.Logging.csproj" />
+      <ProjectReference Include="..\Common.Web\StatementIQ.Common.Web.csproj" />
       <ProjectReference Include="..\Utg.Data\Utg.Data.csproj" />
     </ItemGroup>
 

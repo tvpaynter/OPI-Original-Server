@@ -7,18 +7,20 @@
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.123" />
       <PackageReference Include="Npgsql" Version="6.0.0" />
-      <PackageReference Include="StatementIQ.Common" Version="1.0.732" />
-      <PackageReference Include="StatementIQ.Common.Autofac" Version="1.0.513" />
-      <PackageReference Include="StatementIQ.Common.Command" Version="1.0.4" />
-      <PackageReference Include="StatementIQ.Common.Data" Version="1.0.545" />
-      <PackageReference Include="StatementIQ.Common.ElasticsSearch" Version="1.0.87" />
-      <PackageReference Include="StatementIQ.Data.Common.Migrations" Version="1.0.485" />
 
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Models\" />
       <Folder Include="Repositories\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common.Autofac\StatementIQ.Common.Autofac.csproj" />
+      <ProjectReference Include="..\Common.Data.Migrations\StatementIQ.Data.Common.Migrations.csproj" />
+      <ProjectReference Include="..\Common.Data\StatementIQ.Common.Data.csproj" />
+      <ProjectReference Include="..\Common.Elasticsearch\StatementIQ.Common.Elasticsearch.csproj" />
+      <ProjectReference Include="..\Common\StatementIQ.Common.csproj" />
     </ItemGroup>
 
 </Project>

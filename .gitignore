@@ -20,3 +20,5 @@
 *.xml
 /.vs
 /src/Utg.Test/Properties
+*bin*
+*obj*
