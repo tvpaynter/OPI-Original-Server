@@ -1,0 +1,196 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${CI_PROJECT_PATH_SLUG}
+  namespace: $NAMESPACE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: $NAMESPACE
+  name: ${CI_PROJECT_PATH_SLUG}-svc
+  annotations:
+    app.gitlab.com/app: ${CI_PROJECT_PATH_SLUG}
+    app.gitlab.com/env: ${CI_ENVIRONMENT_SLUG}
+  labels:
+    application: ${CI_ENVIRONMENT_SLUG}
+    release: ${CI_ENVIRONMENT_SLUG}
+spec:
+  selector:
+    app: ${CI_PROJECT_PATH_SLUG}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+      name: https
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: authentication-svc
+  namespace: $NAMESPACE
+spec:
+  type: ExternalName
+  externalName: statementiq-pace-gateway-authentication-svc.statementiq-pace-gateway-authentication-18155929-${CI_ENVIRONMENT_SLUG}.svc.cluster.local
+  ports:
+  - port: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: accounting-svc
+  namespace: $NAMESPACE
+spec:
+  type: ExternalName
+  externalName: statementiq-pace-gateway-accounting-svc.statementiq-pace-gateway-accounting-18157891-${CI_ENVIRONMENT_SLUG}.svc.cluster.local
+  ports:
+  - port: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: statistics-svc
+  namespace: $NAMESPACE
+spec:
+  type: ExternalName
+  externalName: statementiq-pace-gateway-statistics-svc.statementiq-pace-gateway-statistics-21013212-${CI_ENVIRONMENT_SLUG}.svc.cluster.local
+  ports:
+  - port: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: merchants-svc
+  namespace: $NAMESPACE
+spec:
+  type: ExternalName
+  externalName: statementiq-pace-gateway-merchants-svc.statementiq-pace-gateway-merchants-23279492-${CI_ENVIRONMENT_SLUG}.svc.cluster.local
+  ports:
+  - port: 80
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ${CI_PROJECT_PATH_SLUG}-ingress
+  namespace: $NAMESPACE
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/rewrite-target: /v1/$2
+spec:
+  tls:
+    - hosts:
+        - ${Domain}
+  rules:
+  - host: ${Domain}
+    http:
+      paths:
+      - path: /api/utg(/|$)(.*)
+        backend:
+          serviceName: ${CI_PROJECT_PATH_SLUG}-svc
+          servicePort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: $NAMESPACE
+  name: ${CI_PROJECT_PATH_SLUG}
+  annotations:
+    app.gitlab.com/app: ${CI_PROJECT_PATH_SLUG}
+    app.gitlab.com/env: ${CI_ENVIRONMENT_SLUG}
+  labels:
+    app.kubernetes.io/name: ${CI_PROJECT_PATH_SLUG}
+    app.kubernetes.io/version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${CI_PROJECT_PATH_SLUG}
+      version: v1
+  template:
+    metadata:
+      namespace: $NAMESPACE
+      labels:
+        app: ${CI_PROJECT_PATH_SLUG}
+        version: v1
+      annotations:
+        app.gitlab.com/app: ${CI_PROJECT_PATH_SLUG}
+        app.gitlab.com/env: ${CI_ENVIRONMENT_SLUG}
+    spec:
+      imagePullSecrets:
+        - name: gitlab-registry
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      restartPolicy: Always
+      containers:
+        - name: ${CI_PROJECT_PATH_SLUG}
+          image: >-
+            $REGISTRY_IMAGE
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: MerchantId
+              value: "${MERCHANT}"
+            - name: MerchantApiUrl
+              value: "http://merchants-svc/"
+            - name: FiservApiUrl
+              value: http://fiserv-svc/
+            - name: AppSettings__StatisticRepositoryServiceUrl
+              value: "http://statistics-svc/"
+            - name: AccountingApiUrl
+              value: "http://accounting-svc/"
+            - name: AuthApiUrl
+              value: "http://authentication-svc/"
+            - name: AppSettings__ApplicationConfig__BaseHttpHandlerAddress
+              value: "http://authentication-svc/"
+            - name: JWTConfig__SecretKey
+              value: ${JWTConfig__SecretKey}
+            - name: JWTConfig__TokenIssuer
+              value: ${JWTConfig__TokenIssuer}
+            - name: JWTConfig__TokenAudience
+              value: ${JWTConfig__TokenAudience}
+            - name: AppSettings__ServiceAccount__Id
+              value: ${ServiceAcct_ID}
+            - name: AppSettings__ServiceAccount__Secret
+              value: ${ServiceAcct_Secret}
+            - name: ShazamBaseUrl
+              value: "https://webservices.shazamcert.net/shazamwebservices/cert"
+            - name: environment
+              value: ${SwaggerDomain}
+            - name: SwaggerAllowedEnv
+              value: ${SwaggerAllowedEnv}
+            - name: VGSCallBackUrl
+              value: ${VGSCallBackUrl}
+            - name: TrxSettings__Source
+              value: "${TrxSettings_Source}"
+            - name: TrxSettings__Client
+              value: "${TrxSettings_Client}"
+            - name: TrxSettings__EncryptionIv
+              value: "${TrxSettings_EncryptionIv}"
+            - name: TrxSettings__EncryptionKey
+              value: "${TrxSettings_EncryptionKey}"
+            - name: TrxSettings__URL
+              value: "${TrxSettings_URL}"
+            - name: TrxTerminalSettings__Port
+              value: "${TrxTerminalSettings_Port}"
+            - name: TrxTerminalSettings__IpAddress
+              value: "${TrxTerminalSettings_IpAddress}"
+            - name: AppSettings__GenericErrorMessage
+              value: "${AppSettings_GenericErrorMessage}"              
+          volumeMounts:
+            - name: "secrets"
+              mountPath: "/etc/secrets"
+              readOnly: true
+      volumes:
+          - name: "secrets"
+            secret:
+              secretName: pacegw-ingress-tls
+
+
+

@@ -1,0 +1,22 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/Utg.Api/Utg.Api.csproj.user
+/src/Utg.Data/Utg.Data.csproj.user
+/src/Utg.Test/Utg.Test.csproj.user
+/src/.vs
+/src/Utg.Api/.vs
+/src/Utg.Api/obj
+/src/Utg.Api/bin
+
+/src/Utg.Data/.vs
+/src/Utg.Data/obj
+/src/Utg.Data/bin
+
+/src/Utg.Test/.vs
+/src/Utg.Test/obj
+/src/Utg.Test/bin
+*.xml
+/.vs
+/src/Utg.Test/Properties

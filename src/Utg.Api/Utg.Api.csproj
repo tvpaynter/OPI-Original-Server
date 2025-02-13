@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <PackageId>Utg.Api</PackageId>
+        <Authors>Utg.Api</Authors>
+        <Product>Utg.Api</Product>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DocumentationFile>bin\Debug\Utg.Api.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DocumentationFile>bin\Release\Utg.Api.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Common\Interfaces\**" />
+      <Compile Remove="Controllers\Tests\**" />
+      <Compile Remove="Services\Tests\**" />
+      <Content Remove="Common\Interfaces\**" />
+      <Content Remove="Controllers\Tests\**" />
+      <Content Remove="Services\Tests\**" />
+      <EmbeddedResource Remove="Common\Interfaces\**" />
+      <EmbeddedResource Remove="Controllers\Tests\**" />
+      <EmbeddedResource Remove="Services\Tests\**" />
+      <None Remove="Common\Interfaces\**" />
+      <None Remove="Controllers\Tests\**" />
+      <None Remove="Services\Tests\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="live.pem" />
+      <None Remove="Sandbox.pem" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+        <PackageReference Include="MandateThat" Version="1.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
+        <PackageReference Include="StatementIQ.Common" Version="1.0.735" />
+        <PackageReference Include="StatementIQ.Common.Data" Version="1.0.547" />
+        <PackageReference Include="StatementIQ.Common.Web" Version="1.0.600" />
+        <PackageReference Include="StatementIQ.Common.Web.Logging" Version="1.0.0.30" />
+        <PackageReference Include="StatementIQ.Data.Common.Migrations" Version="1.0.485" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Utg.Data\Utg.Data.csproj" />
+    </ItemGroup>
+
+
+</Project>

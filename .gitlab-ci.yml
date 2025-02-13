@@ -1,0 +1,208 @@
+variables:
+  GIT_STRATEGY: clone
+  GIT_CLEAN_FLAGS: none
+  # Avoid shallow clone, as otherwise the total number of commits for versioning cannot be determined.
+  GIT_DEPTH: 0
+  REGISTRY_IMAGE: $CI_REGISTRY_IMAGE:$CI_BUILD_REF
+stages:
+  - build
+  - deploy
+build:
+  only:
+    - master
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  before_script:
+    - apk add --update make ca-certificates openssl
+    - update-ca-certificates
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - >-
+      docker build -f src/Utg.Api/Dockerfile
+      --build-arg NUGET_REPOSITORY_URL=$CI_SERVER_URL/api/v4/groups/6870708/-/packages/nuget/index.json
+      --build-arg NUGET_USERNAME=gitlab-ci-token
+      --build-arg NUGET_PASSWORD=$CI_JOB_TOKEN
+      --build-arg VGS_Cert=$VGS_Cert
+      --tag $CI_REGISTRY_IMAGE:$CI_BUILD_REF
+      --tag $CI_REGISTRY_IMAGE:latest 
+      .
+    - docker push $REGISTRY_IMAGE
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - echo "Deploy to $VGS_Cert server"
+  after_script:
+    - docker logout $CI_REGISTRY
+  artifacts:
+    paths:
+      - ${CI_PROJECT_PATH_SLUG}.tar
+.deploy:
+  variables:
+    #<project_name>-<project_id>-<environment>
+    NAMESPACE: ${CI_PROJECT_PATH_SLUG}-${CI_PROJECT_ID}-${CI_ENVIRONMENT_SLUG}
+  stage: deploy
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  allow_failure: false
+  dependencies:
+#    - test
+    - build
+  before_script:
+    - apt-get update
+    - apt-get install kubectl gettext-base apt-transport-https gnupg2 curl --yes
+    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    - az version
+    - az login --service-principal --username $AZURE_APP_ID --password $AZURE_PWD --tenant $AZ_TENANT    
+    - az account set --subscription $AZ_SUBSCRIPTION
+    - az account get-access-token --subscription $AZ_SUBSCRIPTION
+    - az aks get-credentials --resource-group ${AZ_RESOURCE_GROUP} --name ${AZ_NAME}
+    - >-
+      envsubst < deploy/namespace.yaml 
+      | kubectl apply -f -
+  script:
+    - echo "Deploy to ${CI_ENVIRONMENT_SLUG} server"
+    - >-
+      kubectl create secret docker-registry gitlab-registry
+      --docker-server="$CI_REGISTRY"
+      --docker-username="$CI_DEPLOY_USER"
+      --docker-password="$CI_DEPLOY_PASSWORD"
+      --docker-email="$GITLAB_USER_EMAIL"
+      --dry-run=client 
+      -n $NAMESPACE
+      -o yaml
+      | kubectl apply -f -
+    - >-
+      envsubst < manifest.yaml 
+      | kubectl apply -f -
+.deploy-pci:
+  variables:
+    #<project_name>-<project_id>-<environment>
+    NAMESPACE: ${CI_PROJECT_PATH_SLUG}-${CI_PROJECT_ID}-${CI_ENVIRONMENT_SLUG}
+  stage: deploy
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  allow_failure: false
+  dependencies:
+    - build
+  before_script:
+    - apt-get update
+    - apt-get install kubectl gettext-base apt-transport-https gnupg2 curl --yes
+    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    - az version
+    - az login --service-principal --username $AZURE_APP_ID --password $AZURE_PWD --tenant $AZ_TENANT   
+    - az account set --subscription $AZ_SUBSCRIPTION
+    - az account get-access-token --subscription $AZ_SUBSCRIPTION
+    - az aks get-credentials --resource-group ${AZ_RESOURCE_GROUP} --name ${AZ_NAME}
+    - >-
+      envsubst < deploy/namespace.yaml 
+      | kubectl apply -f -
+  script:
+    - echo "Deploy to ${CI_ENVIRONMENT_SLUG} server"
+    - >-
+      kubectl create secret docker-registry gitlab-registry
+      --docker-server="$CI_REGISTRY"
+      --docker-username="$CI_DEPLOY_USER"
+      --docker-password="$CI_DEPLOY_PASSWORD"
+      --docker-email="$GITLAB_USER_EMAIL"
+      --dry-run=client 
+      -n $NAMESPACE
+      -o yaml
+      | kubectl apply -f -
+    - >-
+      envsubst < manifest.yaml 
+      | kubectl apply -f -
+    - >-
+      envsubst < manifest-pci.yaml 
+      | kubectl apply -f -
+deploy_dev:
+  extends: .deploy
+  environment:
+    name: dev
+    url: https://dev.pacegateway.com
+  only:
+    refs:
+      - master
+deploy_qa:
+  extends: .deploy
+  environment:
+    name: qa
+    url: https://qa.pacegateway.com
+  when: manual
+  only:
+    refs:
+      - master
+deploy_demo:
+  extends: .deploy-pci
+  when: manual
+  environment:
+    name: demo
+    url: https://demo.pacegateway.com
+  only:
+    refs:
+      - master
+deploy_viking_qa:
+  extends: .deploy
+  when: manual
+  environment:
+    name: vik_qa
+    url: https://qa.vikingpayments.com
+  only:
+    refs:
+      - master
+deploy_viking_uat:
+  extends: .deploy
+  when: manual
+  environment:
+    name: vik_uat
+    url: https://uat.vikingpayments.com
+  only:
+    refs:
+      - master
+deploy_viking_prd:
+  extends: .deploy
+  when: manual
+  environment:
+    name: vik_prd
+    url: https://portal.vikingpayments.com
+  only:
+    refs:
+      - master
+deploy_gam_prd:
+  extends: .deploy
+  when: manual
+  environment:
+    name: gam_prd
+    url: https://portal.gampayments.com
+  only:
+    refs:
+      - master
+deploy_ipp_prd:
+  extends: .deploy
+  when: manual
+  environment:
+    name: ipp_prd
+    url: https://portal.intpaypro.com
+  only:
+    refs:
+      - master
+deploy_ipp_qa:
+  extends: .deploy
+  when: manual
+  environment:
+    name: ipp_qa
+    url: https://qa.intpaypro.com
+  only:
+    refs:
+      - master
+deploy_ipp_demo:
+  extends: .deploy
+  when: manual
+  environment:
+    name: ipp_demo
+    url: https://demo.intpaypro.com
+  only:
+    refs:
+      - master
+
